@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Глубины астрала — боевой прототип</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app">
+    <div id="game"></div>
+    <div class="hud" id="hud">
+      <div class="hud-top">
+        <div class="brand"><span class="brand-mark">✦</span><span>ГЛУБИНЫ АСТРАЛА<small id="locationName">ГОРОД · ТИХАЯ ГАВАНЬ</small></span></div>
+        <div class="stats">
+          <div class="stat-label gold-line"><span>ЗОЛОТО</span><strong id="goldText">0 ◈</strong></div>
+          <div class="stat-label memory-line"><span>ОСКОЛКИ ПАМЯТИ</span><strong id="memoryText">0 / 10000</strong></div>
+          <div class="stat-label"><span id="levelText">УРОВЕНЬ 1</span><strong id="xpText">0 / 135 ОП</strong></div>
+          <div class="bar xp-bar"><div id="xpFill"></div></div>
+          <div class="stat-label"><span>ЗДОРОВЬЕ</span><strong id="hpText">100 / 100</strong></div>
+          <div class="bar hp"><div id="hpFill"></div></div>
+          <div class="stat-label ammo"><span>СТРЕЛЫ</span><strong id="ammoText">10 / 10</strong></div>
+          <div class="bar ammo-bar"><div id="ammoFill"></div></div>
+          <div class="stat-label potion-line"><span>ЗЕЛЬЯ · <b id="potionKey">Q</b></span><strong id="potionText">0 / 10</strong></div>
+        </div>
+      </div>
+      <div id="mapQuest" class="map-quest" hidden><span id="questTitle">ЗАДАНИЕ КАРТЫ · УБИТЬ ВСЕХ</span><strong id="questProgress">0 / 0</strong></div>
+      <div id="bossHud" class="boss-hud" hidden><strong id="bossName"></strong><div class="bar hp"><div id="bossFill"></div></div></div>
+      <div class="hud-bottom"><div>ДВИЖЕНИЕ · АТАКА · УМЕНИЯ · <span id="weaponHud">МЕЧ</span></div><div id="enemyCount">ГОРОД</div></div>
+      <div id="skillBar" class="skill-bar" hidden></div>
+      <div class="hud-actions"><button id="characterButton" type="button">ПЕРСОНАЖ <b id="characterKey">C</b></button><button id="controlsButton" type="button">УПРАВЛЕНИЕ</button></div>
+      <div id="toast" class="toast"></div>
+    </div>
+    <div id="screen" class="screen" hidden>
+      <div class="screen-bg"></div>
+      <div class="panel loadout-panel character-panel">
+        <div class="menu-top"><div><div class="eyebrow">✦ &nbsp; ГЕРОЙ И СНАРЯЖЕНИЕ &nbsp; ✦</div><h2>ПЕРСОНАЖ</h2></div><button id="closeCharacter" class="close-button" type="button">✕</button></div>
+        <div class="menu-tabs"><button class="menu-tab active" data-pane="gear" type="button">СНАРЯЖЕНИЕ</button><button class="menu-tab" data-pane="mods" type="button">МОДЫ И УМЕНИЯ</button></div>
+        <div id="gearPane" class="menu-pane">
+          <div id="statSummary" class="stat-summary"></div>
+          <div class="gear-layout"><div><div class="section-heading">НАДЕТО</div><div id="equipmentSlots" class="equipment-grid"></div></div><div><div class="section-heading">РЮКЗАК <small id="inventoryCount">0 / 40</small></div><div id="inventory" class="inventory-grid"></div></div></div>
+          <div id="itemDetail" class="item-detail">Нажмите на предмет в рюкзаке, чтобы надеть его. Нажмите на надетую броню или украшение, чтобы снять.</div>
+        </div>
+        <div id="modsPane" class="menu-pane" hidden>
+          <div class="section-heading"><span>00</span> ОБЛИК ГЕРОЯ <small>выбрать один</small></div>
+          <div id="appearances" class="appearance-grid"></div>
+          <div class="section-heading"><span>01</span> ОРУЖИЕ <small>ПКМ · выбрать одно</small></div>
+          <div id="weapons" class="weapon-grid"></div>
+          <button id="bowConfig" class="bow-config" type="button">НАСТРОИТЬ ЛУК <span id="bowSlots">0 / 6 модов</span></button>
+          <div class="section-heading"><span>02</span> НАВЫКИ ОРУЖИЯ <small>клавиши 1 · 2 · 3, до 6 модов в каждом</small></div>
+          <div id="skillLoadout" class="skill-loadout"></div>
+          <div class="section-heading"><span>03</span> <span id="modHeading">МОДЫ МЕЧА</span> <small id="modSlots">0 / 6 слотов</small></div>
+          <div class="loadout-note">Отдельные моды для обычной атаки. Совместимость определяется тегами навыков.</div>
+          <div id="tagFilters" class="tag-filters"></div>
+          <div id="mods" class="mod-grid"></div>
+        </div>
+      </div>
+    </div>
+    <div id="shopScreen" class="screen" hidden><div class="screen-bg"></div><div class="panel shop-panel"><div class="menu-top"><div><div class="eyebrow">✦ &nbsp; ТОРГОВЦЫ ТИХОЙ ГАВАНИ &nbsp; ✦</div><h2 id="shopTitle">ТОРГОВЕЦ</h2></div><button id="closeShop" class="close-button" type="button">✕</button></div><p id="shopDescription"></p><div class="shop-balance">ВАШЕ ЗОЛОТО: <strong id="shopGold">0 ◈</strong></div><div class="section-heading">ВИТРИНА</div><div id="shopItems" class="shop-items"></div><button id="rerollShop" class="reroll-button" type="button">ОБНОВИТЬ ВИТРИНУ · <span id="rerollPrice">20</span> ◈</button><div class="section-heading">ПЕРЕКОВКА АФФИКСОВ <small>волшебные и редкие предметы</small></div><div id="rerollItemList" class="shop-items"></div></div></div>
+    <div id="depthMerchantScreen" class="screen" hidden><div class="screen-bg"></div><div class="panel depth-merchant-panel"><div class="menu-top"><div><div class="eyebrow">✦ &nbsp; КАЖДАЯ ДЕСЯТАЯ ГЛУБИНА &nbsp; ✦</div><h2>ТОРГОВЕЦ ГЛУБИНЫ</h2></div><button id="closeDepthMerchant" class="close-button" type="button">✕</button></div><p>Странник окружения обменивает золото на припасы для продолжения экспедиции. Иногда среди товаров встречаются осколки памяти.</p><div class="shop-balance">ВАШЕ ЗОЛОТО: <strong id="depthMerchantGold">0 ◈</strong></div><div id="depthMerchantItems" class="depth-merchant-items"></div></div></div>
+    <div id="worldScreen" class="screen" hidden><div class="screen-bg"></div><div class="panel world-panel"><div class="menu-top"><div><div class="eyebrow">✦ &nbsp; ПОРТАЛ В АСТРАЛ &nbsp; ✦</div><h2>ПОДГОТОВКА ЭКСПЕДИЦИИ</h2></div><button id="closeWorld" class="close-button" type="button">✕</button></div><div class="menu-tabs"><button class="world-tab active" data-world-pane="map" type="button">КАРТА И СФЕРЫ</button><button class="world-tab" data-world-pane="supplies" type="button">СНАРЯЖЕНИЕ</button><button id="biomeBossTab" class="world-tab" data-world-pane="boss" type="button" disabled>БОСС БИОМА</button></div><div id="worldMapPane"><p>Выберите шаблон карты и до шести сфер для забега. Каждая копия повторяемой сферы занимает отдельный слот.</p><div class="section-heading">ШАБЛОН ЛОКАЦИИ <small>выбрать один · слоты не занимает</small></div><div id="worldTemplates" class="world-templates"></div><div class="world-budget">ЗАНЯТО СЛОТОВ <strong id="worldSphereCount">0 / 6</strong></div><div id="worldSpheres" class="world-spheres"></div><div id="worldSummary" class="world-summary"></div></div><div id="expeditionPane" hidden><p>Стрелы и зелья закупаются на одну экспедицию. После возвращения или гибели новый запас стрел снова начинается с 10.</p><div id="expeditionSupplies" class="expedition-supplies"></div></div><div id="biomeBossPane" class="biome-boss-pane" hidden><div class="biome-boss-art">♛</div><div><div class="eyebrow">АСТРАЛЬНАЯ ПУСТОШЬ</div><h3>ГРЕМЛИН КОРОЛЬ МУСОРНОЙ КУЧИ</h3><p>Первый гремлин, услышавший шёпот выброшенных миров. Он собирает обломки памяти, строит из них трон и объявляет мусором всё, что не смог подчинить.</p><p>Король сражается огромной дубиной, стреляет из рогатки и зовёт подданных. Потеряв половину здоровья, он призывает воинов и шамана, а затем начинает сокрушительные рывки.</p><div id="biomeBossProgress" class="boss-access"></div><button id="startBiomeBoss" type="button">НАЧАТЬ БИТВУ</button></div></div><button id="enterWorld" type="button">ВОЙТИ В СОЗДАННЫЙ МИР</button></div></div>
+    <div id="controlsScreen" class="screen" hidden><div class="screen-bg"></div><div class="panel controls-panel"><div class="menu-top"><div><div class="eyebrow">✦ &nbsp; НАСТРОЙКИ &nbsp; ✦</div><h2>УПРАВЛЕНИЕ</h2></div><button id="closeControls" class="close-button" type="button">✕</button></div><p>Нажмите на действие, затем клавишу или кнопку мыши. Повторная клавиша поменяет назначения местами.</p><div id="controlBindings" class="control-bindings"></div><button id="resetControls" class="reroll-button" type="button">ВЕРНУТЬ СТАНДАРТНЫЕ КЛАВИШИ</button></div></div>
+    <div id="altarScreen" class="screen" hidden><div class="screen-bg"></div><div class="panel altar-panel"><div class="menu-top"><div><div class="eyebrow">✦ &nbsp; АСТРАЛЬНЫЙ АЛТАРЬ &nbsp; ✦</div><h2>ВЫБОР ПУТИ</h2></div><button id="closeAltar" class="close-button" type="button">✕</button></div><p id="altarStatus"></p><div class="altar-actions"><button id="summonBoss" type="button">ПРИЗВАТЬ БОССА</button><button id="descendWorld" type="button">СПУСТИТЬСЯ ГЛУБЖЕ</button><button id="returnCity" type="button">ВЕРНУТЬСЯ В ГОРОД</button></div></div></div>
+    <div id="creditsScreen" class="screen credits-screen" hidden><div class="screen-bg"></div><div class="credits-content"><div class="eyebrow">✦ &nbsp; ГЛУБИНЫ АСТРАЛА &nbsp; ✦</div><h2>ПОБЕДА</h2><p>Гремлин Король Мусорной Кучи повержен.<br>Шёпот Астральной пустоши затих.</p><div class="demo-title">ЭТО ИГРА-ДЕМКА</div><div class="creator-title">СОЗДАЛ ИГРУ<br><strong>АНАТОЛИЙ ИОНОВ</strong></div><button id="closeCredits" type="button">ВЕРНУТЬСЯ В ГОРОД</button></div></div>
+  </main>
+  <script src="vendor/phaser.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
