@@ -266,10 +266,72 @@ function worldEnemyStarts(build,layout=createWorldLayout(build.template,1)){
 const $ = id => document.getElementById(id);
 const clamp = Phaser.Math.Clamp;
 const APPEARANCES = {
-  ash:{name:'Пепельный',swatch:'#476579',cloak:'#344d5a',trim:'#516978',inner:'#1f3445'},
-  moss:{name:'Странник',swatch:'#638264',cloak:'#486b58',trim:'#769477',inner:'#284c42'},
-  ember:{name:'Багряный',swatch:'#a26360',cloak:'#825052',trim:'#ad7071',inner:'#5d343e'}
+  ash:{name:'Пепельный',style:'ranger',swatch:'#476579',cloak:'#344d5a',trim:'#516978',inner:'#1f3445'},
+  moss:{name:'Странник',style:'ranger',swatch:'#638264',cloak:'#486b58',trim:'#769477',inner:'#284c42'},
+  ember:{name:'Багряный',style:'ranger',swatch:'#a26360',cloak:'#825052',trim:'#ad7071',inner:'#5d343e'},
+  knight:{name:'Астральный рыцарь',style:'knight',swatch:'#8b9bb0',cloak:'#54657a',trim:'#c8d4e0',inner:'#2b3a4d',plate:'#9fb0c4',armor:'#6d7f96'},
+  mage:{name:'Хранитель бездны',style:'mage',swatch:'#7a5fa8',robe:'#5d4691',trim:'#8f74c4',inner:'#2c2150'},
+  wraith:{name:'Призрак пустоши',style:'wraith',swatch:'#a8c2c9',robe:'#5f8d97',trim:'#93c4c9',inner:'#1d3a44',glow:'#cdeef0'}
 };
+const HERO_STYLES={
+  ranger(ctx,look,r){
+    r(8,38,34,5,'#101a27');r(12,34,25,5,'#1a2b37');
+    r(17,30,7,9,'#29394c');r(27,30,7,9,'#29394c');
+    r(14,18,24,18,look.cloak);r(10,22,6,15,look.trim);r(36,22,5,15,look.trim);
+    r(17,16,18,20,look.inner);r(20,22,12,12,'#b47c50');
+    r(17,9,18,14,'#d3a579');r(14,7,24,8,'#e3d8c3');r(16,4,20,6,'#d3d1c5');
+    r(17,14,7,3,'#263a48');r(29,14,6,3,'#263a48');
+    r(15,6,3,4,'#f3e8d7');r(35,6,3,4,'#e7dcc8');
+    r(8,24,5,12,'#b07d57');r(40,24,4,11,'#b07d57');
+    r(20,31,11,4,'#bc9869');r(18,20,16,3,'#aab8b8');
+  },
+  knight(ctx,look,r){
+    r(11,38,28,5,'#101820');r(14,35,23,4,'#39424f');
+    r(16,30,7,8,'#2e3743');r(27,30,7,8,'#2e3743');
+    r(8,19,5,16,look.cloak);r(37,19,5,16,look.cloak);
+    r(12,20,27,18,look.inner);
+    r(7,19,4,15,'#7c8a9c');r(40,19,4,15,'#7c8a9c');
+    r(13,13,26,15,look.plate);r(15,15,22,11,look.armor);
+    r(18,22,15,3,'#c8a36a');
+    r(8,10,8,9,look.plate);r(35,10,8,9,look.plate);
+    r(12,2,27,7,look.plate);r(9,4,6,6,look.plate);r(35,4,6,6,look.plate);
+    r(15,8,21,6,look.armor);
+    r(18,10,15,3,'#101820');
+    r(15,8,4,2,'#dfe9f5');r(32,8,4,2,'#dfe9f5');
+    r(20,0,11,3,look.trim);
+    r(14,27,24,3,look.armor);
+  },
+  mage(ctx,look,r){
+    r(10,37,29,5,'#2a2244');r(13,34,23,4,'#3a2f5c');
+    r(9,23,33,15,look.robe);r(12,25,26,12,look.inner);
+    r(7,35,37,4,look.trim);
+    r(7,23,5,12,look.trim);r(39,23,5,12,look.trim);
+    r(41,31,3,4,'#d9c9a8');
+    r(43,5,3,31,'#6b5138');
+    r(40,1,8,9,'#b9a2e8');r(42,3,4,4,'#e8dcff');
+    r(14,13,24,12,look.robe);r(16,15,20,9,look.inner);
+    r(20,21,12,3,'#5a4a80');r(23,22,5,2,'#b9a2e8');
+    r(18,7,16,8,'#d3a579');
+    r(19,11,5,2,'#cfe6ff');r(28,11,5,2,'#cfe6ff');
+    r(13,1,25,6,'#45356f');r(16,2,21,4,look.trim);
+    r(11,7,28,3,look.robe);r(14,10,24,2,look.robe);
+  },
+  wraith(ctx,look,r){
+    r(10,36,30,6,'#3a5a63');r(14,32,24,6,look.inner);
+    r(11,39,5,3,'#2c4650');r(17,40,6,3,'#24404a');r(26,40,5,3,'#2c4650');r(33,39,6,3,'#24404a');
+    r(11,22,30,15,look.robe);r(14,24,24,12,look.inner);
+    r(7,25,5,11,look.trim);r(39,25,5,11,look.trim);
+    r(5,23,5,10,'#7ba8ae');r(41,23,5,10,'#7ba8ae');
+    r(13,8,26,17,look.robe);r(16,6,20,10,look.trim);r(16,2,20,7,look.inner);
+    r(17,11,18,10,'#122831');
+    r(19,13,6,3,look.glow);r(27,13,6,3,look.glow);
+    r(17,4,4,3,'#d8f2f2');r(30,4,4,3,'#c4e6ea');
+  }
+};
+function drawHeroSkin(ctx,look){
+  const r=(x,y,w,h,color)=>{ctx.fillStyle=color;ctx.fillRect(x,y,w,h)};
+  (HERO_STYLES[look.style]||HERO_STYLES.ranger)(ctx,look,r);
+}
 const WEAPONS = {
   sword: {name:'МЕЧ',icon:'⚔',description:'Быстрый удар широкой дугой.',stats:'52 УРОНА · 0,43 С',tags:['melee','arc']},
   spear: {name:'КОПЬЁ',icon:'➶',description:'Точный выпад, пробивающий двух врагов. Кончик наносит усиленный урон.',stats:'46 УРОНА · 155 ДАЛЬНОСТЬ · 0,60 С',tags:['melee','thrust']},
@@ -343,8 +405,9 @@ const SKILL_MODS=[
   {id:'heavyImpact',name:'Сильный толчок',tags:['impact'],description:'Урон ударного навыка увеличен на 25%.'}
 ];
 const SKILL_MOD_LIMIT=6;
-const loadout={appearance:'ash',weapon:'sword',editing:'sword',modsets:{sword:new Set(),spear:new Set(),hammer:new Set(),bow:new Set()},
-  skillMods:{sword:{parry:new Set(),spin:new Set(),execute:new Set()},spear:{dash:new Set(),chain:new Set(),frenzy:new Set()},hammer:{bastion:new Set(),quickStrike:new Set(),sunder:new Set()}},filter:'all'};
+const freshLoadout=(appearance='ash')=>({appearance,weapon:'sword',editing:'sword',modsets:{sword:new Set(),spear:new Set(),hammer:new Set(),bow:new Set()},
+  skillMods:{sword:{parry:new Set(),spin:new Set(),execute:new Set()},spear:{dash:new Set(),chain:new Set(),frenzy:new Set()},hammer:{bastion:new Set(),quickStrike:new Set(),sunder:new Set()}},filter:'all'});
+const loadout=freshLoadout();
 const skillById=(weapon,id)=>SKILLS[weapon]?.find(skill=>skill.id===id);
 const skillModById=id=>SKILL_MODS.find(mod=>mod.id===id);
 const canSocketSkillMod=(weapon,skillId,modId)=>{
@@ -428,9 +491,10 @@ function makeItem(base,forcedRarity=null,itemLevel=1) {
     rarity,affixes,price:Math.round(basePrice*itemPriceMultiplier(itemLevel))};
 }
 const starter=name=>makeItem(ITEM_BASES.find(base=>base.name===name),0);
-const profile={gold:35,memoryShards:0,biomeBossDefeated:false,level:1,xp:0,mapsCleared:0,location:'city',seenIntro:false,inventory:[starter('Охотничье копьё'),starter('Кузнечный молот')],
+const freshProfile=()=>({gold:35,memoryShards:0,biomeBossDefeated:false,level:1,xp:0,mapsCleared:0,location:'city',seenIntro:true,inventory:[starter('Охотничье копьё'),starter('Кузнечный молот')],
   equipment:{mainHand:starter('Железный меч'),bow:starter('Короткий лук'),head:null,chest:null,gloves:null,boots:null,ring1:null,ring2:null,amulet:null},
-  shops:{smith:[],jeweler:[]},rerolls:{smith:0,jeweler:0},shopTier:-1};
+  shops:{smith:[],jeweler:[]},rerolls:{smith:0,jeweler:0},shopTier:-1});
+const profile=freshProfile();
 function gearStats() {
   const result={damage:0,armor:0,power:0,vitality:0,haste:0,crit:0,speed:0};
   for(const item of Object.values(profile.equipment)){
@@ -455,6 +519,118 @@ function syncShopsToHeroLevel(force=false){
 }
 syncShopsToHeroLevel(true);
 const expeditionPrep={arrows:10,potions:0};
+const CHARACTERS_KEY='astral-characters-v1';
+const ACTIVE_CHARACTER_KEY='astral-active-character';
+const DEFAULT_MAINHAND=JSON.parse(JSON.stringify(starter('Железный меч')));
+const DEFAULT_BOW=JSON.parse(JSON.stringify(starter('Короткий лук')));
+const serializeLoadout=()=>({
+  appearance:loadout.appearance,weapon:loadout.weapon,editing:loadout.editing,filter:loadout.filter,
+  modsets:Object.fromEntries(Object.entries(loadout.modsets).map(([key,set])=>[key,[...set]])),
+  skillMods:Object.fromEntries(Object.entries(loadout.skillMods).map(([weapon,skills])=>[weapon,Object.fromEntries(Object.entries(skills).map(([skill,set])=>[skill,[...set]]))]))
+});
+const serializeFreshLoadout=(appearance)=>{
+  const fresh=freshLoadout(appearance);
+  return {appearance:fresh.appearance,weapon:fresh.weapon,editing:fresh.editing,filter:fresh.filter,
+    modsets:Object.fromEntries(Object.entries(fresh.modsets).map(([key,set])=>[key,[...set]])),
+    skillMods:Object.fromEntries(Object.entries(fresh.skillMods).map(([weapon,skills])=>[weapon,Object.fromEntries(Object.entries(skills).map(([skill,set])=>[skill,[...set]]))]))};
+};
+const deserializeLoadout=(data)=>{
+  loadout.appearance=APPEARANCES[data?.appearance]?data.appearance:'ash';
+  loadout.weapon=WEAPONS[data?.weapon]?data.weapon:'sword';
+  loadout.editing=(data?.editing==='bow'||WEAPONS[data?.editing])?data.editing:'sword';
+  loadout.filter='all';
+  loadout.modsets={};
+  for(const weapon of ['sword','spear','hammer','bow']){
+    const list=data?.modsets?.[weapon];
+    loadout.modsets[weapon]=new Set(Array.isArray(list)?list.filter(id=>MODS.some(mod=>mod.id===id)):[]);
+  }
+  loadout.skillMods={};
+  for(const weapon of ['sword','spear','hammer']){
+    loadout.skillMods[weapon]={};
+    for(const skill of SKILLS[weapon]){
+      const list=data?.skillMods?.[weapon]?.[skill.id];
+      loadout.skillMods[weapon][skill.id]=new Set(Array.isArray(list)?list.filter(id=>SKILL_MODS.some(mod=>mod.id===id)):[]);
+    }
+  }
+};
+const sanitizeProfile=(saved)=>{
+  const base={gold:35,memoryShards:0,biomeBossDefeated:false,level:1,xp:0,mapsCleared:0,location:'city',seenIntro:true,
+    inventory:[],equipment:{mainHand:null,bow:null,head:null,chest:null,gloves:null,boots:null,ring1:null,ring2:null,amulet:null},
+    shops:{smith:[],jeweler:[]},rerolls:{smith:0,jeweler:0},shopTier:-1};
+  const result={...base,...(saved||{})};
+  result.inventory=Array.isArray(result.inventory)?result.inventory:[];
+  result.equipment={...base.equipment,...(result.equipment||{})};
+  result.shops={smith:Array.isArray(result.shops?.smith)?result.shops.smith:[],jeweler:Array.isArray(result.shops?.jeweler)?result.shops.jeweler:[]};
+  result.rerolls={smith:Number(result.rerolls?.smith)||0,jeweler:Number(result.rerolls?.jeweler)||0};
+  result.shopTier=typeof result.shopTier==='number'?result.shopTier:-1;
+  result.gold=Number(result.gold)||0;
+  result.memoryShards=Number(result.memoryShards)||0;
+  result.level=Math.max(1,Number(result.level)||1);
+  result.xp=Number(result.xp)||0;
+  result.mapsCleared=Number(result.mapsCleared)||0;
+  result.biomeBossDefeated=!!result.biomeBossDefeated;
+  if(!result.equipment.mainHand)result.equipment.mainHand=JSON.parse(JSON.stringify(DEFAULT_MAINHAND));
+  if(!result.equipment.bow)result.equipment.bow=JSON.parse(JSON.stringify(DEFAULT_BOW));
+  result.location='city';result.seenIntro=true;
+  return result;
+};
+const computeNextItemId=()=>{
+  let maxId=0;
+  for(const record of characters){
+    const consider=item=>{if(item&&typeof item.id==='number'&&item.id>maxId)maxId=item.id;};
+    (record.profile?.inventory||[]).forEach(consider);
+    Object.values(record.profile?.equipment||{}).forEach(consider);
+    ['smith','jeweler'].forEach(shop=>(record.profile?.shops?.[shop]||[]).forEach(consider));
+  }
+  return maxId+1;
+};
+const loadCharacters=()=>{
+  try{
+    if(typeof localStorage==='undefined')return [];
+    const parsed=JSON.parse(localStorage.getItem(CHARACTERS_KEY)||'null');
+    if(!Array.isArray(parsed))return [];
+    return parsed.map(record=>({
+      ...record,
+      name:String(record?.name||'Странник').slice(0,16),
+      profile:sanitizeProfile(record?.profile),
+      loadout:record?.loadout||serializeLoadout(),
+      expeditionPrep:{arrows:10,potions:0,...(record?.expeditionPrep||{})}
+    }));
+  }catch{return [];}
+};
+let characters=loadCharacters();
+let activeCharacterId=null;
+try{activeCharacterId=typeof localStorage!=='undefined'?(localStorage.getItem(ACTIVE_CHARACTER_KEY)||null):null;}catch{activeCharacterId=null;}
+const saveCharacters=()=>{
+  try{if(typeof localStorage!=='undefined')localStorage.setItem(CHARACTERS_KEY,JSON.stringify(characters));}catch{}
+};
+const saveActiveCharacter=()=>{
+  if(!activeCharacterId||!characters.some(record=>record.id===activeCharacterId))return false;
+  const record=characters.find(record=>record.id===activeCharacterId);
+  record.profile=sanitizeProfile(profile);
+  record.loadout=serializeLoadout();
+  record.expeditionPrep={arrows:expeditionPrep.arrows,potions:expeditionPrep.potions};
+  saveCharacters();
+  return true;
+};
+const applyCharacterState=(record)=>{
+  if(!record)return;
+  Object.keys(profile).forEach(key=>delete profile[key]);
+  Object.assign(profile,sanitizeProfile(record.profile));
+  deserializeLoadout(record.loadout);
+  expeditionPrep.arrows=record.expeditionPrep?.arrows??10;
+  expeditionPrep.potions=record.expeditionPrep?.potions??0;
+  nextItemId=Math.max(nextItemId,computeNextItemId());
+  activeCharacterId=record.id;
+  try{if(typeof localStorage!=='undefined')localStorage.setItem(ACTIVE_CHARACTER_KEY,record.id);}catch{}
+};
+const applySavedCharacterIfAny=()=>{
+  if(!characters.length){activeCharacterId=null;return false;}
+  const active=characters.find(record=>record.id===activeCharacterId)||characters[0];
+  applyCharacterState(active);
+  return true;
+};
+applySavedCharacterIfAny();
 let runSupplies=null,runResources=null;
 const arrowUpgradeCost=capacity=>25+(capacity-10)*2;
 const POTION_COST=18;
@@ -577,17 +753,7 @@ class AstralScene extends Phaser.Scene {
       c.imageSmoothingEnabled=false; draw(c); tex.refresh();
     };
     const rect=(c,x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(x,y,w,h)};
-    for(const [id,look] of Object.entries(APPEARANCES))texture(`hero-${id}`,48,48,c=>{
-      rect(c,8,38,34,5,'#101a27'); rect(c,12,34,25,5,'#1a2b37');
-      rect(c,17,30,7,9,'#29394c');rect(c,27,30,7,9,'#29394c');
-      rect(c,14,18,24,18,look.cloak);rect(c,10,22,6,15,look.trim);rect(c,36,22,5,15,look.trim);
-      rect(c,17,16,18,20,look.inner);rect(c,20,22,12,12,'#b47c50');
-      rect(c,17,9,18,14,'#d3a579');rect(c,14,7,24,8,'#e3d8c3');rect(c,16,4,20,6,'#d3d1c5');
-      rect(c,17,14,7,3,'#263a48');rect(c,29,14,6,3,'#263a48');
-      rect(c,15,6,3,4,'#f3e8d7');rect(c,35,6,3,4,'#e7dcc8');
-      rect(c,8,24,5,12,'#b07d57');rect(c,40,24,4,11,'#b07d57');
-      rect(c,20,31,11,4,'#bc9869');rect(c,18,20,16,3,'#aab8b8');
-    });
+    for(const [id,look] of Object.entries(APPEARANCES))texture(`hero-${id}`,48,48,c=>drawHeroSkin(c,look));
     texture('club',48,48,c=>{
       rect(c,9,38,31,5,'#17201c');rect(c,14,32,8,8,'#384b36');rect(c,27,32,8,8,'#384b36');
       rect(c,12,18,28,18,'#5d7c47');rect(c,16,22,20,14,'#364e35');
@@ -1910,7 +2076,7 @@ const game=new Phaser.Game({
 let currentShop=null;
 let currentDepthMerchant=null;
 let selectedItemId=null;
-const isOverlayOpen=()=>!$('screen').hidden||!$('shopScreen').hidden||!$('depthMerchantScreen').hidden||!$('worldScreen').hidden||!$('controlsScreen').hidden||!$('altarScreen').hidden||!$('creditsScreen').hidden;
+const isOverlayOpen=()=>!$('screen').hidden||!$('shopScreen').hidden||!$('depthMerchantScreen').hidden||!$('worldScreen').hidden||!$('controlsScreen').hidden||!$('altarScreen').hidden||!$('creditsScreen').hidden||!$('characterSelectScreen').hidden;
 const activeScene=()=>game.scene.getScenes(true)[0];
 function showAltarMenu(){
   const scene=activeScene();if(!scene||profile.location!=='arena')return;
@@ -1984,6 +2150,7 @@ function refreshHud(){
   $('potionKey').textContent=controlName(controls.potion);
   $('weaponHud').textContent=WEAPONS[loadout.weapon].name;
   $('mapQuest').hidden=city;
+  $('hudActions').hidden=!city;
   if(city){$('enemyCount').textContent='БЕЗОПАСНАЯ ЗОНА';$('mapQuest').classList.remove('complete');$('bossHud').hidden=true;}
   else if(window.astralScene?.enemies){
     const scene=window.astralScene,total=scene.enemyTotal||STARTS.length;
@@ -2006,6 +2173,124 @@ function renderSkillBar(scene){
 }
 function pauseScene(){const scene=activeScene();if(scene?.physics)scene.physics.pause();}
 function resumeScene(){const scene=activeScene();if(scene?.physics)scene.physics.resume();}
+function hideAllOverlays(){
+  $('screen').hidden=true;$('shopScreen').hidden=true;$('depthMerchantScreen').hidden=true;$('worldScreen').hidden=true;$('controlsScreen').hidden=true;$('altarScreen').hidden=true;$('creditsScreen').hidden=true;$('characterSelectScreen').hidden=true;$('hud').hidden=false;
+}
+function heroCanvas(look,scale=2){
+  const canvas=document.createElement('canvas');
+  canvas.width=48*scale;canvas.height=48*scale;
+  canvas.classList.add('hero-preview');
+  const ctx=canvas.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+  ctx.scale(scale,scale);
+  drawHeroSkin(ctx,look);
+  return canvas;
+}
+const heroCanvasDataURL=(look,scale=2)=>heroCanvas(look,scale).toDataURL();
+let pendingSkin=null,pendingDeleteId=null,pendingDeleteTimer=null;
+function renderSkinPicker(){
+  $('skinPicker').innerHTML='';
+  for(const [id,look] of Object.entries(APPEARANCES)){
+    const card=document.createElement('button');
+    card.type='button';card.className='skin-card'+(pendingSkin===id?' selected':'');
+    card.dataset.skin=id;card.setAttribute('aria-pressed',String(pendingSkin===id));
+    card.append(heroCanvas(look,2));
+    const label=document.createElement('span');label.textContent=look.name;
+    card.append(label);
+    $('skinPicker').append(card);
+  }
+  $('createCharacterButton').disabled=!pendingSkin;
+}
+function characterCard(record){
+  const active=record.id===activeCharacterId;
+  const look=APPEARANCES[record.loadout?.appearance]||APPEARANCES.ash;
+  const level=record.profile?.level||1,gold=record.profile?.gold||0,maps=record.profile?.mapsCleared||0;
+  const card=document.createElement('div');card.className='character-card'+(active?' active':'');
+  const portrait=document.createElement('div');portrait.className='character-portrait';portrait.append(heroCanvas(look,3));
+  const info=document.createElement('div');info.className='character-info';
+  const name=document.createElement('b');name.textContent=record.name||'Странник';
+  const meta=document.createElement('small');meta.textContent=`УРОВЕНЬ ${level} · ${gold} ◈ · КАРТ ПРОЙДЕНО: ${maps}${active?' · АКТИВЕН':''}`;
+  info.append(name,meta);
+  const actions=document.createElement('div');actions.className='character-actions';
+  const play=document.createElement('button');play.type='button';play.className='play';play.dataset.characterPlay=record.id;play.textContent=active?'ВОЙТИ':'ИГРАТЬ';
+  const del=document.createElement('button');del.type='button';del.className='danger';del.dataset.characterDelete=record.id;del.textContent=pendingDeleteId===record.id?'УДАЛИТЬ?':'✕';del.title='Удалить героя';
+  actions.append(play,del);
+  card.append(portrait,info,actions);
+  return card;
+}
+function renderCharacterSelect(){
+  if(characters.length){
+    $('characterList').innerHTML='';
+    for(const record of characters)$('characterList').append(characterCard(record));
+  }else{
+    $('characterList').innerHTML='<div class="empty-copy">Пока нет ни одного героя. Выберите имя и облик ниже, чтобы начать путь в Астрал.</div>';
+  }
+  $('closeCharacterSelect').style.visibility=characters.length?'visible':'hidden';
+  $('newCharacterForm').hidden=false;
+  renderSkinPicker();
+}
+function showCharacterSelect(){
+  if(profile.location!=='city')return;
+  saveActiveCharacter();
+  pendingSkin=pendingSkin||(loadout.appearance in APPEARANCES?loadout.appearance:Object.keys(APPEARANCES)[0]);
+  renderCharacterSelect();
+  $('characterSelectScreen').hidden=false;
+  pauseScene();
+}
+function hideCharacterSelect(){
+  pendingDeleteId=null;clearTimeout(pendingDeleteTimer);
+  $('characterSelectScreen').hidden=true;
+  if(!isOverlayOpen())resumeScene();
+}
+function createCharacter(){
+  if(!pendingSkin)return;
+  const name=($('newCharacterName').value||'').trim()||'Странник';
+  const record={id:'char-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),name,createdAt:Date.now(),
+    profile:freshProfile(),loadout:serializeFreshLoadout(pendingSkin),expeditionPrep:{arrows:10,potions:0}};
+  characters.push(record);
+  applyCharacterState(record);
+  saveCharacters();
+  $('newCharacterName').value='';pendingSkin=null;
+  hideCharacterSelect();
+  enterCityWithCharacter();
+}
+function applyCharacterById(id){
+  const record=characters.find(entry=>entry.id===id);
+  if(!record)return;
+  saveActiveCharacter();
+  applyCharacterState(record);
+  saveCharacters();
+  hideCharacterSelect();
+  enterCityWithCharacter();
+}
+function deleteCharacterById(id){
+  const index=characters.findIndex(record=>record.id===id);
+  if(index<0)return;
+  const wasActive=characters[index].id===activeCharacterId;
+  characters.splice(index,1);
+  if(wasActive){
+    if(characters.length){
+      applyCharacterState(characters[0]);
+    }else{
+      Object.keys(profile).forEach(key=>delete profile[key]);
+      Object.assign(profile,freshProfile());
+      deserializeLoadout(serializeFreshLoadout('ash'));
+      expeditionPrep.arrows=10;expeditionPrep.potions=0;
+      activeCharacterId=null;
+      try{if(typeof localStorage!=='undefined')localStorage.removeItem(ACTIVE_CHARACTER_KEY);}catch{}
+    }
+  }
+  saveCharacters();
+  pendingDeleteId=null;clearTimeout(pendingDeleteTimer);
+  renderCharacterSelect();renderGear();renderLoadout();refreshHud();
+}
+function enterCityWithCharacter(){
+  runBuild=null;runDepth=1;runMode='map';runSupplies=null;runResources=null;
+  selectedItemId=null;
+  const scene=activeScene();
+  if(scene){scene.runId=(scene.runId||0)+1;scene.running=false;scene.scene.start('city');}
+  renderGear();renderLoadout();renderWorldBuilder();refreshHud();
+}
 function renderWorldBuilder(){
   const used=worldSphereCount(worldBuild);
   $('worldTemplates').innerHTML=Object.entries(WORLD_TEMPLATES).map(([id,template])=>
@@ -2065,6 +2350,7 @@ function selectPane(pane){
   document.querySelectorAll('.menu-tab').forEach(button=>button.classList.toggle('active',button.dataset.pane===pane));
 }
 function showCharacterMenu(pane='gear'){
+  if(profile.location!=='city')return;
   $('shopScreen').hidden=true;
   $('screen').hidden=false;
   selectPane(pane);
@@ -2241,7 +2527,7 @@ function renderLoadout() {
   const chosen=loadout.modsets[editing];
   $('appearances').innerHTML=Object.entries(APPEARANCES).map(([id,look])=>
     `<button type="button" class="appearance-card ${loadout.appearance===id?'selected':''}" data-appearance="${id}" aria-pressed="${loadout.appearance===id}">
-      <span class="appearance-swatch" style="background:${look.swatch}"></span>${look.name}</button>`).join('');
+      <img class="appearance-preview" src="${heroCanvasDataURL(look)}" alt="">${look.name}</button>`).join('');
   $('weapons').innerHTML=Object.entries(WEAPONS).map(([id,w])=>
     `<button type="button" class="weapon-card ${loadout.weapon===id?'selected':''} ${editing===id?'editing':''}" data-weapon="${id}" aria-pressed="${loadout.weapon===id}">
       <span class="weapon-name">${w.name}<span class="weapon-icon">${w.icon}</span></span>
@@ -2420,6 +2706,7 @@ document.addEventListener('keydown',event=>{
     else if(!$('worldScreen').hidden)hideWorldBuilder();
     else if(!$('controlsScreen').hidden)hideControls();
     else if(!$('altarScreen').hidden)hideAltarMenu();
+    else if(!$('characterSelectScreen').hidden)hideCharacterSelect();
     return;
   }
   if(event.repeat||event.target?.closest?.('input,textarea'))return;
@@ -2437,3 +2724,35 @@ document.addEventListener('mouseup',event=>heldControls.delete(['MouseLeft','Mou
 document.addEventListener('contextmenu',event=>{if(listeningControl)event.preventDefault();});
 document.addEventListener('click',event=>{if(event.target.closest('button'))playSound('ui');});
 renderGear();refreshHud();
+$('heroesButton').addEventListener('click',showCharacterSelect);
+$('closeCharacterSelect').addEventListener('click',hideCharacterSelect);
+$('newCharacterName').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();createCharacter();}});
+$('skinPicker').addEventListener('click',event=>{
+  const card=event.target.closest('[data-skin]');
+  if(!card)return;
+  pendingSkin=card.dataset.skin;
+  renderSkinPicker();
+});
+$('createCharacterButton').addEventListener('click',createCharacter);
+$('characterList').addEventListener('click',event=>{
+  const play=event.target.closest('[data-character-play]');
+  if(play){applyCharacterById(play.dataset.characterPlay);return;}
+  const del=event.target.closest('[data-character-delete]');
+  if(!del)return;
+  if(pendingDeleteId===del.dataset.characterDelete)deleteCharacterById(del.dataset.characterDelete);
+  else{
+    pendingDeleteId=del.dataset.characterDelete;
+    clearTimeout(pendingDeleteTimer);
+    pendingDeleteTimer=setTimeout(()=>{pendingDeleteId=null;renderCharacterSelect();},3000);
+    renderCharacterSelect();
+  }
+});
+setInterval(()=>saveActiveCharacter(),5000);
+window.addEventListener('beforeunload',()=>saveActiveCharacter());
+let selectBootAttempts=0;
+function bootShowCharacterSelect(){
+  const scene=activeScene();
+  if(!scene?.physics&&++selectBootAttempts<150){setTimeout(bootShowCharacterSelect,60);return;}
+  showCharacterSelect();
+}
+bootShowCharacterSelect();

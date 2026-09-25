@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Глубины астрала — боевой прототип</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <main id="app">
@@ -28,7 +28,7 @@
       <div id="bossHud" class="boss-hud" hidden><strong id="bossName"></strong><div class="bar hp"><div id="bossFill"></div></div></div>
       <div class="hud-bottom"><div>ДВИЖЕНИЕ · АТАКА · УМЕНИЯ · <span id="weaponHud">МЕЧ</span></div><div id="enemyCount">ГОРОД</div></div>
       <div id="skillBar" class="skill-bar" hidden></div>
-      <div class="hud-actions"><button id="characterButton" type="button">ПЕРСОНАЖ <b id="characterKey">C</b></button><button id="controlsButton" type="button">УПРАВЛЕНИЕ</button></div>
+      <div class="hud-actions" id="hudActions"><button id="heroesButton" type="button">ГЕРОИ</button><button id="characterButton" type="button">ПЕРСОНАЖ <b id="characterKey">C</b></button><button id="controlsButton" type="button">УПРАВЛЕНИЕ</button></div>
       <div id="toast" class="toast"></div>
     </div>
     <div id="screen" class="screen" hidden>
@@ -62,8 +62,9 @@
     <div id="controlsScreen" class="screen" hidden><div class="screen-bg"></div><div class="panel controls-panel"><div class="menu-top"><div><div class="eyebrow">✦ &nbsp; НАСТРОЙКИ &nbsp; ✦</div><h2>УПРАВЛЕНИЕ</h2></div><button id="closeControls" class="close-button" type="button">✕</button></div><p>Нажмите на действие, затем клавишу или кнопку мыши. Повторная клавиша поменяет назначения местами.</p><div id="controlBindings" class="control-bindings"></div><button id="resetControls" class="reroll-button" type="button">ВЕРНУТЬ СТАНДАРТНЫЕ КЛАВИШИ</button></div></div>
     <div id="altarScreen" class="screen" hidden><div class="screen-bg"></div><div class="panel altar-panel"><div class="menu-top"><div><div class="eyebrow">✦ &nbsp; АСТРАЛЬНЫЙ АЛТАРЬ &nbsp; ✦</div><h2>ВЫБОР ПУТИ</h2></div><button id="closeAltar" class="close-button" type="button">✕</button></div><p id="altarStatus"></p><div class="altar-actions"><button id="summonBoss" type="button">ПРИЗВАТЬ БОССА</button><button id="descendWorld" type="button">СПУСТИТЬСЯ ГЛУБЖЕ</button><button id="returnCity" type="button">ВЕРНУТЬСЯ В ГОРОД</button></div></div></div>
     <div id="creditsScreen" class="screen credits-screen" hidden><div class="screen-bg"></div><div class="credits-content"><div class="eyebrow">✦ &nbsp; ГЛУБИНЫ АСТРАЛА &nbsp; ✦</div><h2>ПОБЕДА</h2><p>Гремлин Король Мусорной Кучи повержен.<br>Шёпот Астральной пустоши затих.</p><div class="demo-title">ЭТО ИГРА-ДЕМКА</div><div class="creator-title">СОЗДАЛ ИГРУ<br><strong>АНАТОЛИЙ ИОНОВ</strong></div><button id="closeCredits" type="button">ВЕРНУТЬСЯ В ГОРОД</button></div></div>
+    <div id="characterSelectScreen" class="screen" hidden><div class="screen-bg"></div><div class="panel character-select-panel"><div class="menu-top"><div><div class="eyebrow">✦ &nbsp; ГЛУБИНЫ АСТРАЛА &nbsp; ✦</div><h2>ВЫБОР ПЕРСОНАЖА</h2></div><button id="closeCharacterSelect" class="close-button" type="button">✕</button></div><p class="select-note">Каждый герой хранит собственный уровень, снаряжение и прогресс. Чтобы продолжить — нажмите «Играть» на карточке героя. Новый герой создаётся ниже.</p><div id="characterList" class="character-list"></div><div id="newCharacterForm" class="new-character-form"><div class="section-heading"><span>＋</span> СОЗДАТЬ НОВОГО ГЕРОЯ</div><div class="form-row"><label for="newCharacterName">ИМЯ ГЕРОЯ</label><input id="newCharacterName" type="text" maxlength="16" placeholder="Например, Айрин" autocomplete="off"></div><div class="section-heading"><span>00</span> ОБЛИК <small>выбрать один</small></div><div id="skinPicker" class="skin-picker"></div><div class="form-actions"><button id="createCharacterButton" class="reroll-button primary" type="button" disabled>СОЗДАТЬ И ВОЙТИ</button></div></div></div></div>
   </main>
   <script src="vendor/phaser.min.js"></script>
-  <script src="game.js"></script>
+  <script src="game.js?v=3"></script>
 </body>
 </html>
