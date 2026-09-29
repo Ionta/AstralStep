@@ -24,7 +24,7 @@ jobs:
       - name: Assemble static site
         run: |
           mkdir -p _site/vendor
-          cp index.html style.css game.js _site/
+          cp index.html style.css game.js localization.js _site/
           cp vendor/phaser.min.js _site/vendor/
           touch _site/.nojekyll
 

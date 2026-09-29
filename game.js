@@ -642,7 +642,13 @@ const restoredControls={...controls};
 for(const [action,code] of Object.entries(savedControls))if(action in restoredControls&&typeof code==='string')restoredControls[action]=code;
 if(new Set(Object.values(restoredControls)).size===Object.keys(restoredControls).length)Object.assign(controls,restoredControls);
 const heldControls=new Set();
-const controlDown=action=>heldControls.has(controls[action]);
+// A narrow viewport must use touch controls even when browser emulation reports a mouse.
+// Landscape phones are usually wider, so keep the coarse-pointer branch as well.
+const mobileQuery=typeof window!=='undefined'&&window.matchMedia?.('(max-width: 700px), (pointer: coarse) and (max-width: 1100px)');
+let mobileMode=!!mobileQuery?.matches;
+const mobileState={x:0,y:0,aim:null,lastAim:0,joystickPointer:null};
+const movementInput=()=>({x:Number(heldControls.has(controls.right))-Number(heldControls.has(controls.left))+mobileState.x,y:Number(heldControls.has(controls.down))-Number(heldControls.has(controls.up))+mobileState.y});
+const controlDown=action=>heldControls.has(controls[action])||(mobileMode&&(action==='right'?mobileState.x>.25:action==='left'?mobileState.x<-.25:action==='down'?mobileState.y>.25:action==='up'?mobileState.y<-.25:false));
 const controlName=code=>code==='MouseLeft'?'ЛКМ':code==='MouseRight'?'ПКМ':code==='MouseMiddle'?'СКМ':code==='Space'?'ПРОБЕЛ':code?.replace(/^Key/,'').replace(/^Digit/,'')||'';
 function bindControl(action,code){
   if(!(action in controls)||!code||code==='Escape')return false;
@@ -652,9 +658,8 @@ function bindControl(action,code){
   try{localStorage.setItem('astral-controls',JSON.stringify(controls));}catch{}
   return true;
 }
-function dispatchControl(code){
+function dispatchAction(action){
   if(isOverlayOpen())return;
-  const action=Object.keys(controls).find(key=>controls[key]===code);
   const scene=activeScene();
   if(action==='character')toggleCharacterMenu();
   else if(action==='interact')scene?.interact?.()||scene?.rest?.();
@@ -666,6 +671,7 @@ function dispatchControl(code){
     else if(action?.startsWith('skill'))scene?.castSkill(Number(action.slice(-1))-1);
   }
 }
+function dispatchControl(code){dispatchAction(Object.keys(controls).find(key=>controls[key]===code));}
 
 let audioContext=null;
 function ensureAudio(){
@@ -738,6 +744,7 @@ class AstralScene extends Phaser.Scene {
     this.input.mouse.disableContextMenu();
     this.input.on('pointerdown',pointer=>{
       if(!this.running)return;
+      if(mobileMode){const world=this.cameras.main.getWorldPoint(pointer.x,pointer.y);mobileState.aim=Math.atan2(world.y-this.player.y,world.x-this.player.x);mobileState.lastAim=this.time.now;return;}
       dispatchControl(pointer.rightButtonDown()?'MouseRight':pointer.middleButtonDown()?'MouseMiddle':'MouseLeft');
     });
 
@@ -1051,8 +1058,7 @@ class AstralScene extends Phaser.Scene {
       this.nextSpinTick=time+550;
       this.spinTick();
     }
-    let x=Number(controlDown('right'))-Number(controlDown('left'));
-    let y=Number(controlDown('down'))-Number(controlDown('up'));
+    let {x,y}=movementInput();
     const len=Math.hypot(x,y)||1;x/=len;y/=len;
     if(this.skillDashUntil>time){
       p.setVelocity(this.skillDashX*this.skillDashSpeed,this.skillDashY*this.skillDashSpeed);
@@ -1226,6 +1232,18 @@ class AstralScene extends Phaser.Scene {
   }
 
   aim() {
+    if(mobileMode){
+      if(mobileState.aim!==null&&this.time.now-mobileState.lastAim<3500)return mobileState.aim;
+      let nearest=null,distance=Infinity;
+      for(const enemy of this.enemies?.getChildren?.()||[]){
+        if(!enemy.active)continue;
+        const d=Phaser.Math.Distance.Between(this.player.x,this.player.y,enemy.x,enemy.y);
+        if(d<distance&&d<600){nearest=enemy;distance=d;}
+      }
+      if(nearest)return Math.atan2(nearest.y-this.player.y,nearest.x-this.player.x);
+      if(Math.hypot(mobileState.x,mobileState.y)>.2)return Math.atan2(mobileState.y,mobileState.x);
+      return mobileState.aim??0;
+    }
     const pointer=this.input.activePointer;
     const world=this.cameras.main.getWorldPoint(pointer.x,pointer.y);
     return Math.atan2(world.y-this.player.y,world.x-this.player.x);
@@ -1772,8 +1790,7 @@ class AstralScene extends Phaser.Scene {
 
   roll() {
     if(!this.running||isOverlayOpen()||this.rolling||this.skillDashUntil>this.time.now||this.time.now<this.rollReady)return;
-    let x=Number(controlDown('right'))-Number(controlDown('left'));
-    let y=Number(controlDown('down'))-Number(controlDown('up'));
+    let {x,y}=movementInput();
     if(x===0&&y===0){const a=this.aim();x=Math.cos(a);y=Math.sin(a);}
     const d=Math.hypot(x,y);this.rollX=x/d;this.rollY=y/d;
     this.rolling=true;this.rollUntil=this.time.now+420;
@@ -2031,6 +2048,7 @@ class CityScene extends Phaser.Scene {
     this.add.text(640,103,'ПОРТАЛ В АСТРАЛ',{fontFamily:'Georgia',fontSize:'21px',color:'#d6e7dc'}).setOrigin(.5);
     this.add.text(640,648,'ТИХАЯ ГАВАНЬ · БЕЗОПАСНАЯ ЗОНА',{fontFamily:'Arial',fontSize:'12px',color:'#c4b697',letterSpacing:3}).setOrigin(.5);
     this.player=this.physics.add.sprite(640,530,`hero-${loadout.appearance}`).setDepth(10).setCollideWorldBounds(true);
+    if(mobileMode){this.cameras.main.setBounds(0,0,1280,720);this.cameras.main.startFollow(this.player,true,.15,.15);}
     this.player.body.setCircle(15,9,15);
     this.prompt=this.add.text(640,455,'',{fontFamily:'Arial',fontSize:'12px',color:'#f8e7c8',backgroundColor:'#14232bdc',padding:{x:10,y:6}}).setOrigin(.5).setDepth(20).setVisible(false);
     this.near=null;
@@ -2045,8 +2063,7 @@ class CityScene extends Phaser.Scene {
 
   update(){
     if(isOverlayOpen()){this.player.setVelocity(0);return;}
-    const x=Number(controlDown('right'))-Number(controlDown('left'));
-    const y=Number(controlDown('down'))-Number(controlDown('up'));
+    const {x,y}=movementInput();
     const len=Math.hypot(x,y)||1;
     const speed=190+gearStats().speed*5;
     this.player.setVelocity(x/len*speed,y/len*speed);
@@ -2066,17 +2083,18 @@ class CityScene extends Phaser.Scene {
   }
 }
 
+if(typeof AstralI18n!=='undefined'){AstralI18n.installPhaser(Phaser);AstralI18n.start();}
 const game=new Phaser.Game({
-  type:Phaser.AUTO,parent:'game',width:1280,height:720,
+  type:Phaser.AUTO,parent:'game',width:mobileMode?window.innerWidth:1280,height:mobileMode?window.innerHeight:720,
   backgroundColor:'#0c1620',pixelArt:true,roundPixels:true,
-  scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},
+  scale:{mode:mobileMode?Phaser.Scale.RESIZE:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},
   physics:{default:'arcade',arcade:{debug:false}},scene:[CityScene,AstralScene]
 });
 
 let currentShop=null;
 let currentDepthMerchant=null;
 let selectedItemId=null;
-const isOverlayOpen=()=>!$('screen').hidden||!$('shopScreen').hidden||!$('depthMerchantScreen').hidden||!$('worldScreen').hidden||!$('controlsScreen').hidden||!$('altarScreen').hidden||!$('creditsScreen').hidden||!$('characterSelectScreen').hidden;
+const isOverlayOpen=()=>!$('screen').hidden||!$('shopScreen').hidden||!$('depthMerchantScreen').hidden||!$('worldScreen').hidden||!$('controlsScreen').hidden||!$('altarScreen').hidden||!$('creditsScreen').hidden||!$('characterSelectScreen').hidden||!$('languageScreen').hidden;
 const activeScene=()=>game.scene.getScenes(true)[0];
 function showAltarMenu(){
   const scene=activeScene();if(!scene||profile.location!=='arena')return;
@@ -2113,7 +2131,7 @@ function renderControls(){
 }
 function showControls(){
   $('screen').hidden=true;$('shopScreen').hidden=true;$('depthMerchantScreen').hidden=true;$('worldScreen').hidden=true;$('altarScreen').hidden=true;
-  $('controlsScreen').hidden=false;listeningControl=null;renderControls();pauseScene();
+  $('controlsScreen').hidden=false;listeningControl=null;renderControls();$('languageToggle').textContent=AstralI18n.language==='en'?'English':'Русский';pauseScene();
 }
 function hideControls(){
   listeningControl=null;$('controlsScreen').hidden=true;if(!isOverlayOpen())resumeScene();
@@ -2150,7 +2168,7 @@ function refreshHud(){
   $('potionKey').textContent=controlName(controls.potion);
   $('weaponHud').textContent=WEAPONS[loadout.weapon].name;
   $('mapQuest').hidden=city;
-  $('hudActions').hidden=!city;
+  $('hudActions').hidden=!city&&!mobileMode;
   if(city){$('enemyCount').textContent='БЕЗОПАСНАЯ ЗОНА';$('mapQuest').classList.remove('complete');$('bossHud').hidden=true;}
   else if(window.astralScene?.enemies){
     const scene=window.astralScene,total=scene.enemyTotal||STARTS.length;
@@ -2618,6 +2636,11 @@ $('skillBar').addEventListener('click',event=>{
 renderLoadout();
 $('characterButton').addEventListener('click',()=>toggleCharacterMenu());
 $('controlsButton').addEventListener('click',showControls);
+$('languageToggle').addEventListener('click',()=>{AstralI18n.setLanguage(AstralI18n.language==='ru'?'en':'ru');AstralI18n.refreshPhaser(game);renderControls();renderGear();renderLoadout();renderWorldBuilder();refreshHud();});
+$('languageScreen').addEventListener('click',event=>{
+  const button=event.target.closest('[data-language]');if(!button)return;
+  AstralI18n.setLanguage(button.dataset.language);AstralI18n.refreshPhaser(game);$('languageScreen').hidden=true;showCharacterSelect();
+});
 $('closeControls').addEventListener('click',hideControls);
 $('controlBindings').addEventListener('click',event=>{const button=event.target.closest('[data-bind]');if(button){listeningControl=button.dataset.bind;renderControls();}});
 $('resetControls').addEventListener('click',()=>{Object.assign(controls,DEFAULT_CONTROLS);heldControls.clear();try{localStorage.setItem('astral-controls',JSON.stringify(controls));}catch{}renderControls();});
@@ -2724,6 +2747,67 @@ document.addEventListener('mouseup',event=>heldControls.delete(['MouseLeft','Mou
 document.addEventListener('contextmenu',event=>{if(listeningControl)event.preventDefault();});
 document.addEventListener('click',event=>{if(event.target.closest('button'))playSound('ui');});
 renderGear();refreshHud();
+
+function updateMobileLayout(){
+  const next=!!mobileQuery?.matches;
+  if(next!==mobileMode){mobileMode=next;mobileState.x=0;mobileState.y=0;mobileState.aim=null;closeMobileMenu();}
+  document.documentElement.classList.toggle('mobile-mode',mobileMode);
+  $('mobileControls').hidden=!mobileMode;
+  $('hudActions').hidden=profile.location!=='city'&&!mobileMode;
+  if(game?.scale){
+    if(mobileMode){game.scale.scaleMode=Phaser.Scale.RESIZE;game.scale.resize(window.innerWidth,window.innerHeight);}
+    else{game.scale.scaleMode=Phaser.Scale.FIT;game.scale.resize(1280,720);}
+    game.scale.refresh();
+    const scene=activeScene();
+    if(scene?.player&&scene.scene.key==='city'){
+      if(mobileMode){scene.cameras.main.setBounds(0,0,1280,720);scene.cameras.main.startFollow(scene.player,true,.15,.15);}
+      else scene.cameras.main.stopFollow();
+    }
+  }
+}
+function closeMobileMenu(){
+  $('hudActions').classList.remove('open');
+  $('mobileMenuButton').setAttribute('aria-expanded','false');
+}
+function setupMobileControls(){
+  $('mobileMenuButton').addEventListener('click',()=>{
+    const open=!$('hudActions').classList.contains('open');
+    $('hudActions').classList.toggle('open',open);
+    $('mobileMenuButton').setAttribute('aria-expanded',String(open));
+  });
+  $('hudActions').addEventListener('click',()=>closeMobileMenu());
+  document.addEventListener('pointerdown',event=>{
+    if(!event.target.closest('#mobileMenuButton, #hudActions'))closeMobileMenu();
+  });
+  const base=$('mobileJoystick'),stick=$('mobileStick');
+  const move=event=>{
+    const rect=base.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+    const dx=event.clientX-cx,dy=event.clientY-cy,length=Math.hypot(dx,dy)||1,max=rect.width*.33;
+    mobileState.x=Math.max(-1,Math.min(1,dx/max));mobileState.y=Math.max(-1,Math.min(1,dy/max));
+    if(Math.hypot(mobileState.x,mobileState.y)>1){mobileState.x=dx/length;mobileState.y=dy/length;}
+    stick.style.transform=`translate(${mobileState.x*max}px,${mobileState.y*max}px)`;
+  };
+  base.addEventListener('pointerdown',event=>{event.preventDefault();base.setPointerCapture(event.pointerId);mobileState.joystickPointer=event.pointerId;move(event);});
+  base.addEventListener('pointermove',event=>{if(event.pointerId===mobileState.joystickPointer)move(event);});
+  const stop=event=>{if(event.pointerId!==mobileState.joystickPointer)return;mobileState.joystickPointer=null;mobileState.x=0;mobileState.y=0;stick.style.transform='translate(0,0)';};
+  base.addEventListener('pointerup',stop);base.addEventListener('pointercancel',stop);base.addEventListener('lostpointercapture',stop);
+  $('mobileControls').addEventListener('pointerdown',event=>{
+    const button=event.target.closest('[data-mobile-action]');if(!button)return;
+    event.preventDefault();button.setPointerCapture(event.pointerId);button.classList.add('pressed');
+    ensureAudio();dispatchAction(button.dataset.mobileAction);
+    if(button.dataset.mobileAction==='melee'||button.dataset.mobileAction==='bow'){
+      button.mobileRepeat=setInterval(()=>dispatchAction(button.dataset.mobileAction),100);
+    }
+  });
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])$('mobileControls').addEventListener(type,event=>{
+    const button=event.target.closest('[data-mobile-action]');if(!button)return;
+    button.classList.remove('pressed');clearInterval(button.mobileRepeat);
+  });
+  updateMobileLayout();
+  window.addEventListener('resize',updateMobileLayout);
+  mobileQuery?.addEventListener?.('change',updateMobileLayout);
+}
+setupMobileControls();
 $('heroesButton').addEventListener('click',showCharacterSelect);
 $('closeCharacterSelect').addEventListener('click',hideCharacterSelect);
 $('newCharacterName').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();createCharacter();}});
@@ -2753,6 +2837,7 @@ let selectBootAttempts=0;
 function bootShowCharacterSelect(){
   const scene=activeScene();
   if(!scene?.physics&&++selectBootAttempts<150){setTimeout(bootShowCharacterSelect,60);return;}
-  showCharacterSelect();
+  if(AstralI18n.firstLaunch){$('languageScreen').hidden=false;pauseScene();}
+  else showCharacterSelect();
 }
 bootShowCharacterSelect();
