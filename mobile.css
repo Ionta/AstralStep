@@ -1,0 +1,158 @@
+/* Mobile portrait corrections. Loaded after style.css so these rules win. */
+@supports (height: 100dvh) {
+  html,
+  body,
+  #app {
+    height: 100dvh;
+  }
+
+  #app {
+    min-height: 100dvh;
+  }
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+  .mobile-mode .hud-top {
+    gap: 5px;
+    padding: calc(7px + env(safe-area-inset-top)) 8px 0;
+  }
+
+  .mobile-mode .brand {
+    min-width: 0;
+    max-width: calc(100vw - 146px);
+    font-size: 10px;
+    letter-spacing: 0.035em;
+    line-height: 1.05;
+  }
+
+  .mobile-mode .brand-mark {
+    font-size: 14px;
+  }
+
+  .mobile-mode .brand small {
+    overflow: hidden;
+    max-width: 100%;
+    margin-top: 4px;
+    font-size: 6px;
+    letter-spacing: 0.025em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-mode .stats {
+    width: 138px;
+    padding: 5px 7px;
+  }
+
+  .mobile-mode .stat-label {
+    font-size: 7px;
+  }
+
+  .mobile-mode .gold-line,
+  .mobile-mode .memory-line,
+  .mobile-mode .potion-line {
+    margin-bottom: 2px;
+  }
+
+  .mobile-mode .potion-line {
+    margin-top: 4px;
+  }
+
+  .mobile-mode .bar {
+    height: 4px;
+    margin-top: 2px;
+  }
+
+  .mobile-mode .xp-bar {
+    margin-bottom: 4px;
+  }
+
+  .mobile-mode .mobile-menu-button {
+    top: calc(50px + env(safe-area-inset-top));
+    left: max(8px, env(safe-area-inset-left));
+    width: 40px;
+    height: 36px;
+    font-size: 21px;
+  }
+
+  .mobile-mode .hud-actions.open:not([hidden]) {
+    top: calc(90px + env(safe-area-inset-top));
+    left: max(8px, env(safe-area-inset-left));
+    width: 146px;
+  }
+
+  .mobile-mode .mobile-joystick {
+    left: max(12px, env(safe-area-inset-left));
+    bottom: max(12px, calc(env(safe-area-inset-bottom) + 4px));
+    width: 108px;
+    height: 108px;
+  }
+
+  .mobile-mode .mobile-stick {
+    left: 32px;
+    top: 32px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .mobile-mode .mobile-actions {
+    right: max(8px, env(safe-area-inset-right));
+    bottom: max(8px, calc(env(safe-area-inset-bottom) + 2px));
+    gap: 4px;
+  }
+
+  .mobile-mode .mobile-actions > div {
+    gap: 4px;
+  }
+
+  .mobile-mode .mobile-actions button {
+    width: 43px;
+    height: 43px;
+    border-width: 1px;
+    padding: 2px;
+    font-size: 15px;
+  }
+
+  .mobile-mode .mobile-skills button {
+    width: 39px;
+    height: 39px;
+    font-size: 15px;
+  }
+
+  .mobile-mode .mobile-attacks button {
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
+  }
+
+  .mobile-mode .mobile-actions button small {
+    font-size: 6px;
+  }
+
+  .mobile-mode .toast {
+    bottom: 150px;
+  }
+}
+
+@media (max-width: 390px) and (orientation: portrait) {
+  .mobile-mode .stats {
+    width: 132px;
+  }
+
+  .mobile-mode .brand {
+    max-width: calc(100vw - 140px);
+    font-size: 9px;
+  }
+
+  .mobile-mode .mobile-joystick {
+    width: 100px;
+    height: 100px;
+  }
+
+  .mobile-mode .mobile-stick {
+    left: 30px;
+    top: 30px;
+    width: 36px;
+    height: 36px;
+  }
+}
